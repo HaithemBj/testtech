@@ -9,7 +9,7 @@
    ```bash
    npm install
    npm install cypress@13.11.0
-## Execution 
+## Execution des tests:
 GUI: 
 - npx cypress open
 Headless
