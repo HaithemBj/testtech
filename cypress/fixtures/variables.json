@@ -1,0 +1,13 @@
+{
+  "BaseUrl": "https://testingwithclarity.com/ClarityTestPage/ClarityTestPage.html",
+  "selectors": {
+    "buttonClick": "#buttonClick",
+    "buttonDblClick": "#buttonDblClick",
+    "buttonMouseOver": "#buttonMouseOver"
+  },
+  "messages": {
+    "clickDone": "Click Done",
+    "dblClickDone": "DblClick Done",
+    "mouseOverDone": "MouseOver Done"
+  }
+}

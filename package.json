@@ -1,0 +1,19 @@
+{
+  "name": "tech_test",
+  "version": "1.0.0",
+  "description": "test technique",
+  "main": "index.js",
+  "scripts": {
+    "test": "cypress open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "repo"
+  },
+  "author": "Haithem BENJLAIEL",
+  "license": "ISC",
+  "devDependencies": {
+    "cypress": "^13.11.0",
+    "cypress-xpath": "^2.0.1"
+  }
+}
