@@ -3,7 +3,8 @@
   "selectors": {
     "buttonClick": "#buttonClick",
     "buttonDblClick": "#buttonDblClick",
-    "buttonMouseOver": "#buttonMouseOver"
+    "buttonMouseOver": "#buttonMouseOver",
+    "richTextEditor": "//div[contains(@class, 'ck-editor__editable') and contains(@class, 'ck-content')]"
   },
   "messages": {
     "clickDone": "Click Done",

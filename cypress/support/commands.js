@@ -9,3 +9,13 @@ Cypress.Commands.add('validateButtonMessage', (buttonSelector, action, message) 
   cy.contains(message).should('be.visible');
 });
 
+// Command to interact with CKEditor 5 rich text editor
+Cypress.Commands.add('typeInRichTextEditor', (editorXPath, text) => {
+  cy.xpath(editorXPath).click().type(text);
+});
+
+// Command to get content from CKEditor 5 rich text editor
+Cypress.Commands.add('getRichTextEditorContent', (editorXPath) => {
+  return cy.xpath(editorXPath).invoke('text');
+});
+
