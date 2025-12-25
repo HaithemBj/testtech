@@ -28,6 +28,8 @@ Le nouveau sélecteur XPath cible les éléments CKEditor 5 avec la structure su
 </div>
 ```
 
+**Note:** L'attribut `aria-label` et `lang` dépendent de la configuration de la langue de CKEditor 5 et peuvent varier selon les paramètres régionaux.
+
 ## Fichiers modifiés
 
 ### 1. `cypress/fixtures/variables.json`

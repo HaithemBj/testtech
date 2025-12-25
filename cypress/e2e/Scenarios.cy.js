@@ -50,8 +50,8 @@ describe('Actions sur les Boutons', () => {
 // Exemple d'utilisation du sélecteur XPath pour CKEditor 5
 // Pour utiliser ce test, décommenter et adapter à votre page contenant CKEditor 5
 /*
-describe('Test de l\'éditeur de texte enrichi CKEditor 5', () => {
-  it('Peut saisir du texte dans l\'éditeur enrichi', () => {
+describe("Test de l'éditeur de texte enrichi CKEditor 5", () => {
+  it("Peut saisir du texte dans l'éditeur enrichi", () => {
     // Visiter une page contenant CKEditor 5
     cy.visit('URL_DE_VOTRE_PAGE_AVEC_CKEDITOR');
     
