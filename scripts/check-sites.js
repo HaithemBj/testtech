@@ -7,17 +7,16 @@
 
 const https = require('https');
 const http = require('http');
-const url = require('url');
 const sites = require('../cypress/fixtures/sites.json');
 
 function checkSite(site) {
   return new Promise((resolve) => {
-    const parsedUrl = url.parse(site.url);
+    const parsedUrl = new URL(site.url);
     const protocol = parsedUrl.protocol === 'https:' ? https : http;
     
     const options = {
       hostname: parsedUrl.hostname,
-      path: parsedUrl.path,
+      path: parsedUrl.pathname + parsedUrl.search,
       method: 'GET',
       timeout: 10000
     };
