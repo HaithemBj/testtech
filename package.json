@@ -4,7 +4,8 @@
   "description": "test technique",
   "main": "index.js",
   "scripts": {
-    "test": "cypress open"
+    "test": "cypress open",
+    "check-sites": "node scripts/check-sites.js"
   },
   "repository": {
     "type": "git",

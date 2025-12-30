@@ -23,9 +23,16 @@ Le projet inclut maintenant des tests pour vérifier le statut des sites (actifs
 Les sites à vérifier sont configurés dans `cypress/fixtures/sites.json`. Vous pouvez ajouter ou modifier les sites en éditant ce fichier.
 
 ### Exécution des tests de statut
-Pour exécuter les tests de vérification de statut:
+Pour exécuter les tests de vérification de statut avec Cypress:
 ```bash
 npx cypress run --spec "cypress/e2e/SiteStatusVerification.cy.js"
+```
+
+Pour vérifier rapidement les sites sans Cypress (avec Node.js):
+```bash
+npm run check-sites
+# ou directement
+node scripts/check-sites.js
 ```
 
 ### Sites surveillés
