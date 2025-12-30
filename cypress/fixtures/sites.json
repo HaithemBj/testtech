@@ -1,0 +1,22 @@
+{
+  "sites": [
+    {
+      "name": "ultraedge-prod",
+      "url": "https://www.ultraedge.com",
+      "status": "inactive",
+      "description": "UltraEdge production site"
+    },
+    {
+      "name": "ultraedge-staging",
+      "url": "https://staging.ultraedge.com",
+      "status": "inactive",
+      "description": "UltraEdge staging environment"
+    },
+    {
+      "name": "clarity-test",
+      "url": "https://testingwithclarity.com/ClarityTestPage/ClarityTestPage.html",
+      "status": "active",
+      "description": "Clarity test page"
+    }
+  ]
+}
