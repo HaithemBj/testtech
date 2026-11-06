@@ -1,0 +1,18 @@
+{
+  "name": "sc2-playwright",
+  "version": "1.0.0",
+  "description": "Parcours B2B DacRC => Dactech en pur Playwright (conversion de sc2_b2b_dacrc_dactech.robot)",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "typecheck": "tsc --noEmit",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.0.0",
+    "dotenv": "^16.4.5",
+    "typescript": "^5.6.0"
+  }
+}
