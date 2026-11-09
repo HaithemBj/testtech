@@ -1,6 +1,6 @@
 import { Page } from '@playwright/test';
 import { config } from '../config';
-import { click, fill, isVisible, poll, settle, sleep, xq } from '../lib/resilience';
+import { click, fill, isVisible, perf, poll, retry, settle, sleep, xq } from '../lib/resilience';
 
 const x = (p: Page, s: string) => p.locator(`xpath=${s}`);
 const ION_LOGIN = `(//*[@id='ion-input-0']|//ion-input[@formcontrolname='login']/input)`;
@@ -113,7 +113,22 @@ export class Dactech {
     const p = this.page;
     const d = new Date(Date.now() - 15 * 60_000);
     const start = `${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}`;
-    await fill(x(p, `//time-picker[contains(.,'Heure début')]//input`), start);
+    const input = x(p, `//time-picker[contains(.,'Heure début')]//input`).first();
+    // Champ masqué : saisie touche par touche, la valeur affichée peut être reformatée (ex. 14:25)
+    await retry(
+      async () => {
+        await input.waitFor({ state: 'visible', timeout: perf.timeout(20_000) });
+        await input.scrollIntoViewIfNeeded().catch(() => {});
+        await input.click();
+        await input.press('Control+a');
+        await input.press('Backspace');
+        await input.pressSequentially(start, { delay: 100 });
+        const actual = (await input.inputValue()).replace(/\D/g, '');
+        if (actual !== start) throw new Error(`heure de début incorrecte: "${actual}" au lieu de "${start}"`);
+        await input.press('Tab');
+      },
+      { label: 'saisie Heure début', attempts: 4, delay: 500 },
+    );
     await click(x(p, `//*[@id="main-content"]//span[contains(.,'Signer et envoyer le CR')]`), { attempts: 2 });
     await settle(p, 60_000);
   }
