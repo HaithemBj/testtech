@@ -9,7 +9,7 @@ export default defineConfig({
   retries: 1,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    headless: !process.env.HEADED,
+    headless: false,
     viewport: { width: 1920, height: 1080 },
     ignoreHTTPSErrors: true,
     actionTimeout: 30_000,
