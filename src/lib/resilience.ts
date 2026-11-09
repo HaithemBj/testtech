@@ -136,6 +136,24 @@ export async function fill(loc: Locator, value: string, o: { label?: string } = 
   );
 }
 
+/** Saisie touche par touche (déclenche les événements clavier des lookups Salesforce). */
+export async function typeText(loc: Locator, value: string, o: { label?: string } = {}) {
+  await retry(
+    async () => {
+      const el = loc.first();
+      await el.waitFor({ state: 'visible', timeout: perf.timeout(20_000) });
+      await el.scrollIntoViewIfNeeded({ timeout: perf.timeout(5_000) }).catch(() => {});
+      await el.click({ timeout: perf.timeout(8_000) });
+      await el.press('Control+a');
+      await el.press('Backspace');
+      await el.pressSequentially(value, { delay: 80 });
+      const actual = await el.inputValue().catch(() => value);
+      if (actual !== value) throw new Error(`valeur saisie incorrecte: "${actual}"`);
+    },
+    { label: o.label ?? `type ${loc}`, attempts: 4, delay: 500 },
+  );
+}
+
 export async function isVisible(loc: Locator, timeout = 3_000) {
   try {
     await loc.first().waitFor({ state: 'visible', timeout: perf.timeout(timeout) });

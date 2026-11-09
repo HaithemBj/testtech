@@ -1,6 +1,6 @@
-import { Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 import { config } from '../config';
-import { click, fill, isVisible, poll, retry, settle, sleep, xq } from '../lib/resilience';
+import { click, fill, isVisible, poll, retry, settle, sleep, typeText, xq } from '../lib/resilience';
 
 const x = (p: Page, s: string) => p.locator(`xpath=${s}`);
 const WORKSPACE_TABS = `//div[@aria-label="Onglets d'espaces de travail pour D@c RC"]`;
@@ -70,23 +70,33 @@ export class DacRC {
     await settle(p);
   }
 
+  /** Tape la valeur puis clique « Afficher plus de résultats » ; ne clique pas sur le champ si la liste est déjà ouverte (sinon elle se referme). */
+  private async searchInLookup(input: Locator, value: string, moreResults: Locator) {
+    await typeText(input, value);
+    if (!(await isVisible(moreResults, 10_000))) {
+      await input.click();
+      await moreResults.first().waitFor({ state: 'visible', timeout: 30_000 });
+    }
+    await click(moreResults);
+    await this.pickFromLookupModal();
+  }
+
   async chooseCaller(name: string) {
     const p = this.page;
-    await fill(x(p, CONTACT_INPUT), name);
-    await click(x(p, `//div[./input[@id=(//label[contains(.,'Nom du contact')]/@for)]]`));
-    await click(
+    await this.searchInLookup(
+      x(p, CONTACT_INPUT),
+      name,
       x(p, `${CONTACT_INPUT}/following::span[contains(text(),'Afficher plus de résultats pour')][contains(text(),${xq(name)})]`),
     );
-    await this.pickFromLookupModal();
   }
 
   async chooseLocation(dkCode: string) {
     const p = this.page;
-    await fill(p.locator(`input[placeholder='Recherchez dans les Emplacements...']`), dkCode);
-    await click(
+    await this.searchInLookup(
+      p.locator(`input[placeholder='Recherchez dans les Emplacements...']`),
+      dkCode,
       x(p, `//input[@id=(//label[contains(.,'Emplacement')]/@for)]/following::span[contains(text(),'Afficher plus de résultats pour')]`),
     );
-    await this.pickFromLookupModal();
   }
 
   async fillMessage(text: string) {
