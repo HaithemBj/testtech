@@ -16,7 +16,7 @@ export default defineConfig({
     navigationTimeout: 90_000,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    video: 'off', // FFmpeg non téléchargeable derrière le proxy
     launchOptions: {
       executablePath: process.env.CHROME_PATH || undefined,
       args: ['--disk-cache-size=0'],
