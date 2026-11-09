@@ -110,30 +110,33 @@ export class Dactech {
   }
 
   /**
-   * Saisie d'un champ horaire masqué. Stratégie 1 : touches clavier ; stratégie 2 : valeur injectée
-   * avec les événements input/change/blur. L'erreur finale contient le HTML du champ pour diagnostic.
+   * Équivalent du `Input Text` du Robot : focus direct (sans clic, qui ouvre le sélecteur d'heure et remet
+   * l'heure actuelle), vidage, puis touches. Essais suivants : clic + clavier, puis injection d'événements.
    */
   private async typeTime(input: Locator, hhmm: string, label: string) {
     const digits = async () => ((await input.inputValue().catch(() => '')) || '').replace(/\D/g, '');
-    const formats = [hhmm, `${hhmm.slice(0, 2)}:${hhmm.slice(2)}`];
     await retry(
       async (attempt) => {
         await input.waitFor({ state: 'visible', timeout: perf.timeout(20_000) });
         await input.scrollIntoViewIfNeeded().catch(() => {});
-        await input.click();
-        await input.press('Control+a');
-        await input.press('Backspace');
-        if (attempt % 2 === 1) {
+        const mode = [0, 1, 2, 0][(attempt - 1) % 4];
+        if (mode === 0) {
+          await input.focus();
+          await input.fill('');
+          await input.pressSequentially(hhmm, { delay: 100 });
+        } else if (mode === 1) {
+          await input.click();
+          await input.press('Control+a');
+          await input.press('Backspace');
           await input.pressSequentially(hhmm, { delay: 150 });
         } else {
           await input.evaluate((el: HTMLInputElement, v: string) => {
             const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
             setter.call(el, v);
             for (const t of ['input', 'change', 'blur']) el.dispatchEvent(new Event(t, { bubbles: true }));
-          }, formats[(attempt / 2 - 1) % 2 | 0]);
+          }, hhmm);
         }
-        await input.press('Tab');
-        await sleep(300);
+        await sleep(500);
         const actual = await digits();
         if (actual !== hhmm) {
           const html = await input
@@ -148,20 +151,15 @@ export class Dactech {
 
   async signAndSend() {
     const p = this.page;
-    const hhmm = (d: Date) => `${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}`;
-    const now = new Date();
-    const start = hhmm(new Date(now.getTime() - 15 * 60_000));
-    const end = hhmm(now);
-
-    // Le time-picker doit contenir uniquement son propre libellé (pas un conteneur parent regroupant début et fin)
-    const picker = (label: string, other: string) =>
-      x(p, `//time-picker[contains(.,${xq(label)}) and not(contains(.,${xq(other)}))]//input`).first();
-
-    await this.typeTime(picker('Heure début', 'Heure fin'), start, 'heure de début');
-    const endInput = picker('Heure fin', 'Heure début');
-    if (await isVisible(endInput, 5_000)) await this.typeTime(endInput, end, 'heure de fin');
-
-    await click(x(p, `//*[@id="main-content"]//span[contains(.,'Signer et envoyer le CR')]`), { attempts: 2 });
+    const d = new Date(Date.now() - 15 * 60_000);
+    const start = `${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}`;
+    // Même XPath que le Robot ; l'heure de fin reste à l'heure actuelle (valeur par défaut)
+    await this.typeTime(x(p, `//time-picker[contains(.,'Heure début')]//input`).first(), start, 'heure de début');
+    await sleep(1_000);
+    const send = x(p, `//*[@id="main-content"]//span[contains(.,'Signer et envoyer le CR')]`);
+    await send.first().scrollIntoViewIfNeeded().catch(() => {});
+    await sleep(1_000);
+    await click(send, { attempts: 2 });
     await settle(p, 60_000);
   }
 
