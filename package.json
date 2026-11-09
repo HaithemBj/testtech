@@ -4,8 +4,9 @@
   "description": "Parcours B2B DacRC => Dactech en pur Playwright (conversion de sc2_b2b_dacrc_dactech.robot)",
   "private": true,
   "scripts": {
-    "test": "playwright test",
-    "test:headed": "playwright test --headed",
+    "auth": "playwright test --project=auth",
+    "test": "playwright test --project=main",
+    "test:headed": "playwright test --project=main --headed",
     "typecheck": "tsc --noEmit",
     "report": "playwright show-report"
   },

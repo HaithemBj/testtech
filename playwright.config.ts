@@ -7,6 +7,11 @@ export default defineConfig({
   workers: 1,
   // Relance le parcours complet en cas d'échec dû à une lenteur ponctuelle
   retries: 1,
+  projects: [
+    // `npm run auth` : connexion manuelle (MFA) une seule fois, session sauvegardée dans auth/state.json
+    { name: 'auth', testMatch: /auth\.setup\.ts/, timeout: 15 * 60_000, retries: 0 },
+    { name: 'main', testMatch: /.*\.spec\.ts/ },
+  ],
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     headless: false,

@@ -3,7 +3,7 @@ import { config } from '../config';
 import { click, fill, isVisible, perf, poll, retry, settle, sleep, xq } from '../lib/resilience';
 
 const x = (p: Page, s: string) => p.locator(`xpath=${s}`);
-const ION_LOGIN = `(//*[@id='ion-input-0']|//ion-input[@formcontrolname='login']/input)`;
+export const ION_LOGIN = `(//*[@id='ion-input-0']|//ion-input[@formcontrolname='login']/input)`;
 const SEARCH_BTN = `(//ion-button[.//ion-icon[@name='search']]|//button[.//ion-icon[@name='search']])`;
 const SEARCH_INPUT = `//input[@placeholder='Rechercher un OT ou un site']`;
 const OT_CARD = `//ion-list//ot-card//p[@class='libelle-ot']`;

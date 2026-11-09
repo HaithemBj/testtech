@@ -1,4 +1,5 @@
 import { test } from '@playwright/test';
+import fs from 'node:fs';
 import { config } from '../src/config';
 import { perf, step } from '../src/lib/resilience';
 import { DacRC } from '../src/pages/dacrc';
@@ -6,6 +7,10 @@ import { Dactech } from '../src/pages/dactech';
 
 const TEST_NAME =
   'sc2_Parcours B2B DacRC => Dactech: DI dans DacRC - Attribution dans D@C RC - Réalisation dans D@C Tech';
+const AUTH_STATE = 'auth/state.json';
+const hasSession = fs.existsSync(AUTH_STATE);
+// Session (cookies MFA) créée par `npm run auth`
+if (hasSession) test.use({ storageState: AUTH_STATE });
 const COMMENT = 'TEST SUPERVISION - NE PAS PRENDRE EN COMPTE';
 
 test(TEST_NAME, async ({ context }) => {
@@ -81,7 +86,8 @@ test(TEST_NAME, async ({ context }) => {
   await rcPage.close();
 
   // --- Réalisation dans D@C Tech (session propre, comme Fermer/Lancer Chrome) ---
-  await context.clearCookies();
+  // Avec une session sauvegardée on la conserve (sinon le MFA serait redemandé)
+  if (!hasSession) await context.clearCookies();
   const techPage = await context.newPage();
   const tech = new Dactech(techPage);
 

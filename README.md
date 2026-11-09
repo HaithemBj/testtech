@@ -13,6 +13,15 @@ npm test                          # ou npm run test:headed
 npm run report
 ```
 
+### MFA : saisir le code une seule fois
+
+```bash
+npm run auth    # ouvre le navigateur : saisir le code MFA de DacRC puis de Dactech à la main
+npm test        # réutilise la session sauvegardée (auth/state.json), sans MFA
+```
+
+`auth/` est ignoré par git (la session équivaut à un mot de passe : ne pas la partager). Quand la session expire côté serveur, relancer `npm run auth`.
+
 Aucun identifiant n'est dans le code : tout passe par `.env` (ignoré par git).
 
 ## Robustesse face aux problèmes de performance
