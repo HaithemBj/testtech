@@ -109,19 +109,38 @@ export class Dactech {
     await settle(this.page, 30_000);
   }
 
-  /** Saisie touche par touche d'un champ horaire masqué (valeur affichée parfois reformatée, ex. 14:25). */
+  /**
+   * Saisie d'un champ horaire masqué. Stratégie 1 : touches clavier ; stratégie 2 : valeur injectée
+   * avec les événements input/change/blur. L'erreur finale contient le HTML du champ pour diagnostic.
+   */
   private async typeTime(input: Locator, hhmm: string, label: string) {
+    const digits = async () => ((await input.inputValue().catch(() => '')) || '').replace(/\D/g, '');
+    const formats = [hhmm, `${hhmm.slice(0, 2)}:${hhmm.slice(2)}`];
     await retry(
-      async () => {
+      async (attempt) => {
         await input.waitFor({ state: 'visible', timeout: perf.timeout(20_000) });
         await input.scrollIntoViewIfNeeded().catch(() => {});
         await input.click();
         await input.press('Control+a');
         await input.press('Backspace');
-        await input.pressSequentially(hhmm, { delay: 100 });
-        const actual = (await input.inputValue()).replace(/\D/g, '');
-        if (actual !== hhmm) throw new Error(`${label} incorrecte: "${actual}" au lieu de "${hhmm}"`);
+        if (attempt % 2 === 1) {
+          await input.pressSequentially(hhmm, { delay: 150 });
+        } else {
+          await input.evaluate((el: HTMLInputElement, v: string) => {
+            const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+            setter.call(el, v);
+            for (const t of ['input', 'change', 'blur']) el.dispatchEvent(new Event(t, { bubbles: true }));
+          }, formats[(attempt / 2 - 1) % 2 | 0]);
+        }
         await input.press('Tab');
+        await sleep(300);
+        const actual = await digits();
+        if (actual !== hhmm) {
+          const html = await input
+            .evaluate((el) => (el.closest('time-picker') || el.parentElement || el).outerHTML.slice(0, 600))
+            .catch(() => '?');
+          throw new Error(`${label} incorrecte: "${actual}" au lieu de "${hhmm}" | HTML: ${html}`);
+        }
       },
       { label: `saisie ${label}`, attempts: 4, delay: 500 },
     );
