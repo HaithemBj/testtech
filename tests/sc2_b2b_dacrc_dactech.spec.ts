@@ -15,7 +15,6 @@ test(TEST_NAME, async ({ context }) => {
 
   const rcPage = await context.newPage();
   const rc = new DacRC(rcPage);
-  const matricule = config.data.matricule();
   let di = '';
   let ot = '';
 
@@ -73,8 +72,8 @@ test(TEST_NAME, async ({ context }) => {
     'Attribution dans D@C RC',
     async () => {
       await rc.loadInstructions();
-      await rc.addInstruction(matricule);
-      await rc.assignToTechnician(matricule);
+      await rc.addInstruction(config.data.matricule());
+      await rc.assignToTechnician(config.data.matricule());
     },
     { recover: () => rc.reload() },
   );
@@ -85,7 +84,7 @@ test(TEST_NAME, async ({ context }) => {
   const techPage = await context.newPage();
   const tech = new Dactech(techPage);
 
-  await s('Lancement de Dactech', () => tech.login(matricule), { attempts: 3 });
+  await s('Lancement de Dactech', () => tech.login(config.data.matricule()), { attempts: 3 });
   await s(`Sélection de l'OT ${ot} dans Dactech`, () => tech.selectOt(ot));
   await s(
     `Réalisation de l'OT ${ot} dans D@C Tech avec intervention et problème réglé`,
