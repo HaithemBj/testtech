@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 import { config } from '../config';
 import { click, fill, isVisible, perf, poll, retry, settle, sleep, xq } from '../lib/resilience';
 
@@ -109,12 +109,8 @@ export class Dactech {
     await settle(this.page, 30_000);
   }
 
-  async signAndSend() {
-    const p = this.page;
-    const d = new Date(Date.now() - 15 * 60_000);
-    const start = `${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}`;
-    const input = x(p, `//time-picker[contains(.,'Heure début')]//input`).first();
-    // Champ masqué : saisie touche par touche, la valeur affichée peut être reformatée (ex. 14:25)
+  /** Saisie touche par touche d'un champ horaire masqué (valeur affichée parfois reformatée, ex. 14:25). */
+  private async typeTime(input: Locator, hhmm: string, label: string) {
     await retry(
       async () => {
         await input.waitFor({ state: 'visible', timeout: perf.timeout(20_000) });
@@ -122,13 +118,30 @@ export class Dactech {
         await input.click();
         await input.press('Control+a');
         await input.press('Backspace');
-        await input.pressSequentially(start, { delay: 100 });
+        await input.pressSequentially(hhmm, { delay: 100 });
         const actual = (await input.inputValue()).replace(/\D/g, '');
-        if (actual !== start) throw new Error(`heure de début incorrecte: "${actual}" au lieu de "${start}"`);
+        if (actual !== hhmm) throw new Error(`${label} incorrecte: "${actual}" au lieu de "${hhmm}"`);
         await input.press('Tab');
       },
-      { label: 'saisie Heure début', attempts: 4, delay: 500 },
+      { label: `saisie ${label}`, attempts: 4, delay: 500 },
     );
+  }
+
+  async signAndSend() {
+    const p = this.page;
+    const hhmm = (d: Date) => `${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}`;
+    const now = new Date();
+    const start = hhmm(new Date(now.getTime() - 15 * 60_000));
+    const end = hhmm(now);
+
+    // Le time-picker doit contenir uniquement son propre libellé (pas un conteneur parent regroupant début et fin)
+    const picker = (label: string, other: string) =>
+      x(p, `//time-picker[contains(.,${xq(label)}) and not(contains(.,${xq(other)}))]//input`).first();
+
+    await this.typeTime(picker('Heure début', 'Heure fin'), start, 'heure de début');
+    const endInput = picker('Heure fin', 'Heure début');
+    if (await isVisible(endInput, 5_000)) await this.typeTime(endInput, end, 'heure de fin');
+
     await click(x(p, `//*[@id="main-content"]//span[contains(.,'Signer et envoyer le CR')]`), { attempts: 2 });
     await settle(p, 60_000);
   }
