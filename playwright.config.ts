@@ -10,7 +10,7 @@ export default defineConfig({
   projects: [
     // `npm run auth` : connexion manuelle (MFA) une seule fois, session sauvegardée dans auth/state.json
     { name: 'auth', testMatch: /auth\.setup\.ts/, timeout: 15 * 60_000, retries: 0 },
-    { name: 'main', testMatch: /.*\.spec\.ts/ },
+    { name: 'main', testMatch: /.*\.spec\.ts/, retries: 0 },
   ],
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {

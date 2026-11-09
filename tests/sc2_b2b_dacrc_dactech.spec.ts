@@ -23,7 +23,7 @@ test(TEST_NAME, async ({ context }) => {
   let di = '';
   let ot = '';
 
-  await s('Lancement de Dacrc', () => rc.login(), { attempts: 3 });
+  await s('Lancement de Dacrc', () => rc.login(), { attempts: 1 });
 
   // --- Création de la DI dans DacRC ---
   // Avant l'enregistrement rien n'est persisté : on peut rejouer le formulaire sans risque.
@@ -91,7 +91,7 @@ test(TEST_NAME, async ({ context }) => {
   const techPage = await context.newPage();
   const tech = new Dactech(techPage);
 
-  await s('Lancement de Dactech', () => tech.login(config.data.matricule()), { attempts: 3 });
+  await s('Lancement de Dactech', () => tech.login(config.data.matricule()), { attempts: 1 });
   await s(`Sélection de l'OT ${ot} dans Dactech`, () => tech.selectOt(ot));
   await s(
     `Réalisation de l'OT ${ot} dans D@C Tech avec intervention et problème réglé`,

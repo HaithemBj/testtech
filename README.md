@@ -31,7 +31,7 @@ Aucun identifiant n'est dans le code : tout passe par `.env` (ignoré par git).
 - **Actions auto-réparées** : `click` (clic normal puis clic JS, équivalent de `Wait and Click`), `fill` (avec vérification de la valeur), retry avec backoff exponentiel.
 - **Polling borné** au lieu des `WHILE … limit=` : statut « A traiter » (avec rechargement), consigne technicien, apparition de l'OT dans Dactech (6 min max, sans perdre la session).
 - **Étapes idempotentes** : le formulaire est rejouable, mais l'enregistrement de la DI et l'envoi du CR ne sont jamais rejoués (pas de doublons). Le changement de propriétaire est ignoré s'il est déjà fait.
-- **Diagnostic** : trace, vidéo et capture conservées en cas d'échec ; message d'erreur identique à celui du Robot (étape + scénario) ; 1 relance du test complet (`retries: 1`).
+- **Diagnostic** : trace, vidéo et capture conservées en cas d'échec ; message d'erreur identique à celui du Robot (étape + scénario) .
 
 ## Écarts avec le Robot
 
