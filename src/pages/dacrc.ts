@@ -99,6 +99,16 @@ export class DacRC {
     );
   }
 
+  /** Coche « Ne pas attribuer automatiquement » (idempotent : le formulaire peut être rejoué). */
+  async disableAutoAssignment() {
+    const box = this.page.locator(`xpath=//input[@name="Ne_pas_attribuer_automatiquement__c"]`).first();
+    await box.waitFor({ state: 'attached', timeout: 30_000 });
+    await box.scrollIntoViewIfNeeded().catch(() => {});
+    if (await box.isChecked()) return;
+    await click(box);
+    if (!(await box.isChecked())) throw new Error("case « Ne pas attribuer automatiquement » non cochée");
+  }
+
   async fillMessage(text: string) {
     await fill(this.page.locator(`xpath=//label[contains(., 'Message à transmettre')]/following-sibling::div//textarea`), text);
   }

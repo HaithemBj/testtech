@@ -35,6 +35,7 @@ test(TEST_NAME, async ({ context }) => {
       await rc.selectUrgency('Urgente');
       await rc.fillUrgencyReason(config.data.raisonMajUrgence());
       await rc.selectOrigin('Appel entrant');
+      await rc.disableAutoAssignment();
     },
     { attempts: 3, recover: () => rc.waitReady() },
   );
