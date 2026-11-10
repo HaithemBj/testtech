@@ -1,4 +1,4 @@
-import { test as base, chromium, BrowserContext } from '@playwright/test';
+import { test as base, chromium, Browser, BrowserContext } from '@playwright/test';
 import path from 'node:path';
 
 // Équivalent de --user-data-dir=C:\Temp\profil du Robot, uniquement pour DacRC : le profil Chrome conserve
@@ -16,7 +16,7 @@ async function withFallback<T>(launch: (executablePath?: string) => Promise<T>, 
   }
 }
 
-export const test = base.extend<{ techContext: BrowserContext }>({
+export const test = base.extend<{ newTechContext: () => Promise<BrowserContext> }>({
   // DacRC : profil persistant
   context: async ({ launchOptions, viewport, ignoreHTTPSErrors }, use) => {
     const context = await withFallback(
@@ -31,16 +31,19 @@ export const test = base.extend<{ techContext: BrowserContext }>({
       launchOptions.executablePath,
     );
     await use(context);
-    await context.close();
+    await context.close().catch(() => {});
   },
-  // Dactech : navigateur neuf, sans cookie ni session conservés
-  techContext: async ({ launchOptions, viewport, ignoreHTTPSErrors }, use) => {
-    const browser = await withFallback(
-      (executablePath) => chromium.launch({ ...launchOptions, executablePath, headless: false }),
-      launchOptions.executablePath,
-    );
-    const context = await browser.newContext({ viewport, ignoreHTTPSErrors });
-    await use(context);
-    await browser.close();
+  // Dactech : navigateur neuf lancé à la demande (après la fermeture de DacRC), sans cookie ni session conservés
+  newTechContext: async ({ launchOptions, viewport, ignoreHTTPSErrors }, use) => {
+    const browsers: Browser[] = [];
+    await use(async () => {
+      const browser = await withFallback(
+        (executablePath) => chromium.launch({ ...launchOptions, executablePath, headless: false }),
+        launchOptions.executablePath,
+      );
+      browsers.push(browser);
+      return browser.newContext({ viewport, ignoreHTTPSErrors });
+    });
+    for (const b of browsers) await b.close().catch(() => {});
   },
 });

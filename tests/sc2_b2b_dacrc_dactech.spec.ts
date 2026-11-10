@@ -24,9 +24,9 @@ const ddLog = (statut: 'info' | 'warn' | 'OK' | 'Error', message: string) =>
 
 const created = { di: '', ot: '' };
 
-test(TEST_NAME, async ({ context, techContext }) => {
+test(TEST_NAME, async ({ context, newTechContext }) => {
   try {
-    await run(context, techContext);
+    await run(context, newTechContext);
     console.log('OK');
     ddLog('info', `La création de la demande ${created.di} (ot ${created.ot}) est en succes`);
     ddLog('OK', 'Execution en success');
@@ -38,7 +38,7 @@ test(TEST_NAME, async ({ context, techContext }) => {
   }
 });
 
-async function run(context: BrowserContext, techContext: BrowserContext) {
+async function run(context: BrowserContext, newTechContext: () => Promise<BrowserContext>) {
   perf.reset();
   const s = (name: string, fn: () => Promise<void>, o: { attempts?: number; recover?: () => Promise<void> } = {}) =>
     step(name, fn, { ...o, testName: TEST_NAME });
@@ -110,10 +110,11 @@ async function run(context: BrowserContext, techContext: BrowserContext) {
     },
     { recover: () => rc.reload() },
   );
-  // DacRC est terminé : on ferme sa fenêtre pour ne garder que Dactech
-  await Promise.all(context.pages().map((pg) => pg.close().catch(() => {})));
+  // DacRC est terminé : on ferme son navigateur (le profil est enregistré) avant d'ouvrir Dactech
+  await context.close();
 
   // Dactech : session propre (contexte séparé), le profil DacRC garde l'appareil de confiance MFA
+  const techContext = await newTechContext();
   const techPage = await techContext.newPage();
   const tech = new Dactech(techPage);
 
