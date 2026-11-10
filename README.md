@@ -16,11 +16,11 @@ npm run report
 ### MFA : saisir le code une seule fois
 
 ```bash
-npm run auth    # ouvre le navigateur : saisir le code MFA de DacRC puis de Dactech à la main
+npm run auth    # ouvre le navigateur : saisir le code MFA de DacRC à la main
 npm test        # réutilise le même profil Chrome (auth/profile), sans MFA
 ```
 
-Comme le Robot (`--user-data-dir`), le test utilise un profil Chrome persistant (`auth/profile`, modifiable avec `PROFILE_DIR`) qui garde l'appareil de confiance MFA. `auth/` est ignoré par git (ne pas le partager). Fermer les autres Chrome utilisant ce profil avant de lancer. Quand la session expire côté serveur, relancer `npm run auth`.
+Comme le Robot (`--user-data-dir`), le test utilise, pour DacRC uniquement, un profil Chrome persistant (`auth/profile`, modifiable avec `PROFILE_DIR`) qui garde l'appareil de confiance MFA. `auth/` est ignoré par git (ne pas le partager). Dactech utilise un navigateur neuf à chaque exécution (aucune session conservée). Fermer les autres Chrome utilisant ce profil avant de lancer. Quand la session expire côté serveur, relancer `npm run auth`.
 
 Aucun identifiant n'est dans le code : tout passe par `.env` (ignoré par git).
 

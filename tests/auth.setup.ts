@@ -1,12 +1,12 @@
 import { test } from '../src/fixtures';
 import { config } from '../src/config';
 import { settle } from '../src/lib/resilience';
-import { ION_LOGIN } from '../src/pages/dactech';
 
 const MFA_WAIT = 5 * 60_000;
 
-// Connexion à DacRC et Dactech : saisissez le code MFA à la main dans le navigateur (une seule fois).
-test('Sauvegarde de la session (MFA manuel)', async ({ context }) => {
+// Connexion à DacRC : saisissez le code MFA à la main dans le navigateur (une seule fois).
+// Dactech n'utilise pas le profil : il se connecte à chaque exécution avec un navigateur neuf.
+test('Sauvegarde de la session DacRC (MFA manuel)', async ({ context }) => {
   const rc = await context.newPage();
   await rc.goto(config.dacrc.url(), { waitUntil: 'domcontentloaded' });
   const username = rc.locator('#username, [name="username"]').first();
@@ -21,19 +21,5 @@ test('Sauvegarde de la session (MFA manuel)', async ({ context }) => {
     .first()
     .waitFor({ state: 'visible', timeout: MFA_WAIT });
   await settle(rc);
-
-  const tech = await context.newPage();
-  await tech.goto(config.dactech.url(), { waitUntil: 'domcontentloaded' });
-  const sso = tech.locator('#userNameInput');
-  const ion = tech.locator(`xpath=${ION_LOGIN}`).first();
-  await sso.or(ion).first().waitFor({ state: 'visible', timeout: 90_000 });
-  if (await sso.isVisible()) {
-    await sso.fill(config.dactech.user());
-    await tech.locator('#passwordInput').fill(config.dactech.password());
-    await tech.locator('#submitButton').click();
-  }
-  console.log('Dactech : saisissez le code MFA dans le navigateur si demandé (5 min max)...');
-  await ion.waitFor({ state: 'visible', timeout: MFA_WAIT });
-
-  console.log('Profil enregistré : les prochains tests ne redemandent pas le MFA.');
+  console.log('Profil DacRC enregistré : les prochains tests ne redemandent pas le MFA.');
 });

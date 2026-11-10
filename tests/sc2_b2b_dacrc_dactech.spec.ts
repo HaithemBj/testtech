@@ -24,9 +24,9 @@ const ddLog = (statut: 'info' | 'warn' | 'OK' | 'Error', message: string) =>
 
 const created = { di: '', ot: '' };
 
-test(TEST_NAME, async ({ context }) => {
+test(TEST_NAME, async ({ context, techContext }) => {
   try {
-    await run(context);
+    await run(context, techContext);
     console.log('OK');
     ddLog('info', `La création de la demande ${created.di} (ot ${created.ot}) est en succes`);
     ddLog('OK', 'Execution en success');
@@ -38,7 +38,7 @@ test(TEST_NAME, async ({ context }) => {
   }
 });
 
-async function run(context: BrowserContext) {
+async function run(context: BrowserContext, techContext: BrowserContext) {
   perf.reset();
   const s = (name: string, fn: () => Promise<void>, o: { attempts?: number; recover?: () => Promise<void> } = {}) =>
     step(name, fn, { ...o, testName: TEST_NAME });
@@ -111,9 +111,8 @@ async function run(context: BrowserContext) {
   );
   await rcPage.close();
 
-  // --- Réalisation dans D@C Tech (session propre, comme Fermer/Lancer Chrome) ---
-  // Pas de purge des cookies : le profil garde l'appareil de confiance MFA
-  const techPage = await context.newPage();
+  // Dactech : session propre (contexte séparé), le profil DacRC garde l'appareil de confiance MFA
+  const techPage = await techContext.newPage();
   const tech = new Dactech(techPage);
 
   await s('Lancement de Dactech', () => tech.login(config.data.matricule()), { attempts: 1 });
