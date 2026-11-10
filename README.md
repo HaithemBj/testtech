@@ -10,7 +10,7 @@ npm install
 npx playwright install chromium   # inutile si CHROME_PATH est défini
 cp .env.example .env              # puis renseigner les valeurs
 npm test                          # ou npm run test:headed
-npm run report
+npm run report                 # ouvre le rapport HTML (dossier report/, généré automatiquement à chaque run)
 ```
 
 ### MFA : saisir le code une seule fois

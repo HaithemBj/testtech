@@ -19,7 +19,7 @@ const ddLog = (statut: 'info' | 'warn' | 'OK' | 'Error', message: string) =>
     robot: process.env.DD_ROBOT || 'sc2-playwright',
     application: process.env.DD_APPLICATION || 'dacrc-dactech',
     client: process.env.DD_CLIENT || 'Dalkia',
-    logFile: process.env.REPORT_FILE || path.resolve('playwright-report', 'index.html'),
+    logFile: process.env.REPORT_FILE || path.resolve('report', 'index.html'),
   });
 
 const created = { di: '', ot: '' };

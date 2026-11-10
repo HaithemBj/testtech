@@ -12,7 +12,7 @@ export default defineConfig({
     { name: 'auth', testMatch: /auth\.setup\.ts/, timeout: 15 * 60_000, retries: 0 },
     { name: 'main', testMatch: /.*\.spec\.ts/, retries: 0 },
   ],
-  reporter: [['list'], ['html', { open: 'never' }]],
+  reporter: [['list'], ['html', { outputFolder: 'report', open: 'never' }]],
   use: {
     headless: false,
     viewport: { width: 1920, height: 1080 },

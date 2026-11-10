@@ -8,7 +8,7 @@
     "test": "playwright test --project=main",
     "test:headed": "playwright test --project=main --headed",
     "typecheck": "tsc --noEmit",
-    "report": "playwright show-report"
+    "report": "playwright show-report report"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",
