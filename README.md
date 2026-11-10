@@ -17,10 +17,10 @@ npm run report
 
 ```bash
 npm run auth    # ouvre le navigateur : saisir le code MFA de DacRC puis de Dactech à la main
-npm test        # réutilise la session sauvegardée (auth/state.json), sans MFA
+npm test        # réutilise le même profil Chrome (auth/profile), sans MFA
 ```
 
-`auth/` est ignoré par git (la session équivaut à un mot de passe : ne pas la partager). Quand la session expire côté serveur, relancer `npm run auth`.
+Comme le Robot (`--user-data-dir`), le test utilise un profil Chrome persistant (`auth/profile`, modifiable avec `PROFILE_DIR`) qui garde l'appareil de confiance MFA. `auth/` est ignoré par git (ne pas le partager). Fermer les autres Chrome utilisant ce profil avant de lancer. Quand la session expire côté serveur, relancer `npm run auth`.
 
 Aucun identifiant n'est dans le code : tout passe par `.env` (ignoré par git).
 
@@ -35,6 +35,6 @@ Aucun identifiant n'est dans le code : tout passe par `.env` (ignoré par git).
 
 ## Écarts avec le Robot
 
-- Contexte de navigateur neuf (pas de profil `C:\Temp\profil`) ; `CHROME_PATH` permet d'utiliser le Chrome des robots.
+- Profil Chrome dédié `auth/profile` (à la place de `C:\Temp\profil`) ; `CHROME_PATH` permet d'utiliser le Chrome des robots.
 - Les appels API (Orion, Tempo, MSAD, token Dactech via proxy) du Robot ne sont pas utilisés par ce scénario et ne sont pas portés.
 - Les sélecteurs sont repris des fichiers `.robot` ; à valider lors d'un premier run sur l'environnement réel.

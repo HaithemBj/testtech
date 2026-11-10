@@ -1,5 +1,4 @@
-import { test } from '@playwright/test';
-import fs from 'node:fs';
+import { test } from '../src/fixtures';
 import { config } from '../src/config';
 import { settle } from '../src/lib/resilience';
 import { ION_LOGIN } from '../src/pages/dactech';
@@ -8,8 +7,6 @@ const MFA_WAIT = 5 * 60_000;
 
 // Connexion à DacRC et Dactech : saisissez le code MFA à la main dans le navigateur (une seule fois).
 test('Sauvegarde de la session (MFA manuel)', async ({ context }) => {
-  fs.mkdirSync('auth', { recursive: true });
-
   const rc = await context.newPage();
   await rc.goto(config.dacrc.url(), { waitUntil: 'domcontentloaded' });
   const username = rc.locator('#username, [name="username"]').first();
@@ -38,6 +35,5 @@ test('Sauvegarde de la session (MFA manuel)', async ({ context }) => {
   console.log('Dactech : saisissez le code MFA dans le navigateur si demandé (5 min max)...');
   await ion.waitFor({ state: 'visible', timeout: MFA_WAIT });
 
-  await context.storageState({ path: 'auth/state.json' });
-  console.log('Session enregistrée dans auth/state.json');
+  console.log('Profil enregistré : les prochains tests ne redemandent pas le MFA.');
 });
