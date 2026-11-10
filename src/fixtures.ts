@@ -7,12 +7,23 @@ export const PROFILE_DIR = path.resolve(process.env.PROFILE_DIR || 'auth/profile
 
 export const test = base.extend({
   context: async ({ launchOptions, viewport, ignoreHTTPSErrors }, use) => {
-    const context = await chromium.launchPersistentContext(PROFILE_DIR, {
-      ...launchOptions,
-      headless: false,
-      viewport,
-      ignoreHTTPSErrors,
-    });
+    const launch = (executablePath?: string) =>
+      chromium.launchPersistentContext(PROFILE_DIR, {
+        ...launchOptions,
+        executablePath,
+        headless: false,
+        viewport,
+        ignoreHTTPSErrors,
+      });
+    let context;
+    try {
+      context = await launch(launchOptions.executablePath);
+    } catch (e) {
+      if (!launchOptions.executablePath) throw e;
+      // Chrome du Robot (CHROME_PATH) refusé ou fermé aussitôt : repli sur le Chromium de Playwright
+      console.log(`CHROME_PATH inutilisable (${String((e as Error).message).split('\n')[0]}) : repli sur Chromium Playwright`);
+      context = await launch(undefined);
+    }
     await use(context);
     await context.close();
   },
