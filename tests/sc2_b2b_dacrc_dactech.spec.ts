@@ -1,14 +1,39 @@
+import { BrowserContext } from '@playwright/test';
 import { config } from '../src/config';
 import { test } from '../src/fixtures';
+import { generateDDLog } from '../src/lib/ddlog';
 import { perf, step } from '../src/lib/resilience';
 import { DacRC } from '../src/pages/dacrc';
 import { Dactech } from '../src/pages/dactech';
+import path from 'node:path';
 
 const TEST_NAME =
   'sc2_Parcours B2B DacRC => Dactech: DI dans DacRC - Attribution dans D@C RC - Réalisation dans D@C Tech';
 const COMMENT = 'TEST SUPERVISION - NE PAS PRENDRE EN COMPTE';
 
+const ddLog = (statut: 'OK' | 'KO', message: string) =>
+  generateDDLog({
+    statut,
+    message,
+    robot: process.env.DD_ROBOT || 'sc2-playwright',
+    application: process.env.DD_APPLICATION || 'DacRC-Dactech',
+    client: process.env.DD_CLIENT || 'Dalkia',
+    logFile: process.env.REPORT_FILE || path.resolve('playwright-report', 'index.html'),
+  });
+
 test(TEST_NAME, async ({ context }) => {
+  try {
+    await run(context);
+    console.log('OK');
+    ddLog('OK', TEST_NAME);
+  } catch (e) {
+    console.log('KO');
+    ddLog('KO', (e as Error).message);
+    throw e; // le test reste en échec pour Playwright
+  }
+});
+
+async function run(context: BrowserContext) {
   perf.reset();
   const s = (name: string, fn: () => Promise<void>, o: { attempts?: number; recover?: () => Promise<void> } = {}) =>
     step(name, fn, { ...o, testName: TEST_NAME });
@@ -101,4 +126,4 @@ test(TEST_NAME, async ({ context }) => {
   await s('Fermeture des suggestions OTs', () => tech.closeSuggestions());
 
   console.log('Terminé');
-});
+}
