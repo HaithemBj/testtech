@@ -11,24 +11,29 @@ const TEST_NAME =
   'sc2_Parcours B2B DacRC => Dactech: DI dans DacRC - Attribution dans D@C RC - Réalisation dans D@C Tech';
 const COMMENT = 'TEST SUPERVISION - NE PAS PRENDRE EN COMPTE';
 
-const ddLog = (statut: 'OK' | 'KO', message: string) =>
+// Même convention que les autres robots : statuts info / warn / OK / Error
+const ddLog = (statut: 'info' | 'warn' | 'OK' | 'Error', message: string) =>
   generateDDLog({
     statut,
     message,
     robot: process.env.DD_ROBOT || 'sc2-playwright',
-    application: process.env.DD_APPLICATION || 'DacRC-Dactech',
+    application: process.env.DD_APPLICATION || 'dacrc-dactech',
     client: process.env.DD_CLIENT || 'Dalkia',
     logFile: process.env.REPORT_FILE || path.resolve('playwright-report', 'index.html'),
   });
+
+const created = { di: '', ot: '' };
 
 test(TEST_NAME, async ({ context }) => {
   try {
     await run(context);
     console.log('OK');
-    ddLog('OK', TEST_NAME);
+    ddLog('info', `La création de la demande ${created.di} (ot ${created.ot}) est en succes`);
+    ddLog('OK', 'Execution en success');
   } catch (e) {
     console.log('KO');
-    ddLog('KO', (e as Error).message);
+    const ref = created.di || 'DI non créée';
+    ddLog('Error', `La création de la demande ${ref} est en echec: ${(e as Error).message}`);
     throw e; // le test reste en échec pour Playwright
   }
 });
@@ -72,6 +77,7 @@ async function run(context: BrowserContext) {
       await rc.clickSave();
       di = await rc.readCreatedRequestNumber();
       ot = `${di}-1`;
+      Object.assign(created, { di, ot });
       console.log(`DI créée: ${di}`);
     },
     { attempts: 1 },
