@@ -43,7 +43,8 @@ async function run(context: BrowserContext, techContext: BrowserContext) {
   const s = (name: string, fn: () => Promise<void>, o: { attempts?: number; recover?: () => Promise<void> } = {}) =>
     step(name, fn, { ...o, testName: TEST_NAME });
 
-  const rcPage = await context.newPage();
+  // Réutilise l'onglet about:blank ouvert avec le profil (évite un onglet vide en trop)
+  const rcPage = context.pages()[0] ?? (await context.newPage());
   const rc = new DacRC(rcPage);
   let di = '';
   let ot = '';
@@ -109,7 +110,8 @@ async function run(context: BrowserContext, techContext: BrowserContext) {
     },
     { recover: () => rc.reload() },
   );
-  await rcPage.close();
+  // DacRC est terminé : on ferme sa fenêtre pour ne garder que Dactech
+  await Promise.all(context.pages().map((pg) => pg.close().catch(() => {})));
 
   // Dactech : session propre (contexte séparé), le profil DacRC garde l'appareil de confiance MFA
   const techPage = await techContext.newPage();
